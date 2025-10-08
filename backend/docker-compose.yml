@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: idea-board-db
+    environment:
+      POSTGRES_USER: postgres.gbztrvcnmeaagzsigaxl
+      POSTGRES_PASSWORD: bIBo7ni0Tx2cEhZb
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - idea-board-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: idea-board-backend
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://postgres.gbztrvcnmeaagzsigaxl:bIBo7ni0Tx2cEhZb@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+      FRONTEND_URL: https://the-idea-board-k8rk.vercel.app
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ./wait-for-db.sh
+    volumes:
+      - ./backend/src:/app/src
+    networks:
+      - idea-board-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  idea-board-network:
+    driver: bridge
