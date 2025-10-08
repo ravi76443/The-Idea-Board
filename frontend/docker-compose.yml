@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # Frontend Next.js App
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: idea-board-frontend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://the-idea-board-six.vercel.app/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - idea-board-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  idea-board-network:
+    driver: bridge
