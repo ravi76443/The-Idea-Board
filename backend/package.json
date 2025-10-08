@@ -4,13 +4,14 @@
   "description": "Backend API for Idea Board application",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
-    "db:seed": "tsx src/seed.ts"
+    "db:seed": "tsx src/seed.ts",
+    "postinstall": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
